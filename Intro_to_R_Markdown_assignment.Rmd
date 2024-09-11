@@ -1,0 +1,69 @@
+---
+title: "R and R Markdown Basics"
+author: "Autumn Kloth"
+date: "2024-09-06"
+output: html_document
+---
+## Exercise 1:
+In this exercise, I am creating a function with a pair of two-dimensional vectors and trying to find the Euclidean distance between the pair. 
+```{r}
+# mydist2D: 
+  # This function takes a pair of two dimension vectors and subtracts 
+  # them from each other, then squares the sum of the subtraction, summed, 
+  # and then returns the square root of the whole argument to get 
+  # the Euclidean distance.
+# Input: 
+  # I create a function called "mydist2D" with the variables a and b.
+  # In the next line, I specify that a and b are vectors with specific points.
+  # I also specified that when mydist2D is called, vectors a and b will return
+  # by being subtracted, squared, sumed, and then square rooted. 
+# Output: 
+  # The output I get is 1.414214.
+
+mydist2D <- function(a,b)
+{
+  return(sqrt((a[1]-b[1])^2+(a[2]-b[2])^2))
+}
+vec1 <- c(0,0)
+vec2 <- c(1,1)
+mydist2D(a=vec1,b=vec2)
+```
+
+## Exercise 2:
+In this exercise, I am calculating the Euclidean distance between a pair of two vectors. I am writing a `for` loop to calculate the sum in the expression for the distance. 
+```{r}
+mydist <- function(a,b){
+  
+  l <- length(a)
+  d <- 0
+  
+  for(i in 1:l){
+    d <- d + (a[i]-b[i])^2
+  }
+  return(sqrt(d))
+}
+
+a <- c(0,0,0)
+b <- c(1,1,1)
+mydist(a,b)
+```
+## Exercise 3:
+In this exercise, I am writing a function `evenorodd` to determine to check whether an integer is even or odd
+```{r}
+evenorodd <- function(x) {
+  if (x %% 2 == 0) 
+{
+    return("even")
+} else {
+  return("odd")
+  }
+}
+evenorodd(5)
+```
+## Exercise 4:
+In this exercise, I am producing 1000 standard random variables. I am then using a function called `cumsum` that calculates the cumulative sum of the variables. I am plotting a lin of the cumulative sum in the color green. 
+```{r}
+x <- rnorm(1000)
+y <- cumsum(x)
+plot(y, type='l', col='green')
+```
