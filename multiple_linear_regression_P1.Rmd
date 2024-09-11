@@ -1,0 +1,101 @@
+---
+title: "multiple_linear_regression_H1"
+author: "Autumn Kloth"
+date: "2024-09-09"
+output:
+  html_document: default
+---
+
+## Question 1: We will analyse the Carseats dataset in R, available in the ISLR2 library
+#### (a) Fit a multiple regression model to predict Sales using Price, Urban, and US.
+```{r, include=FALSE}
+chooseCRANmirror(graphics = FALSE, ind = 1)
+install.packages("ISLR2")
+```
+```{r}
+library(ISLR2)
+head(Carseats)
+lm.fit <- lm(Sales~Price+Urban+US,data=Carseats)
+summary(lm.fit)
+```
+```{r}
+```
+#### (b) Provide an interpretation of each coefficient in the model, including the intercept. Be careful—some of the variables in the model are qualitative!
+The intercept is 13.043469. This means that when the variable Price is at 0 units, Urban (Yes) is at 0 (which is Urban (No)), its reference level) and US (Yes) is at 0 (which is US (No)), its reference level). It's important to note that `Urban` and `US` are qualitative baseline predictors.
+
+The price coefficient is -0.054459. This means for every 1 unit increase in price, sales will decrease by 0.054459 units. The t-value is large (in absolute terms) and the p-value is very small, meaning that the variable price is statistically significant.
+
+The coefficient of Urban is -0.021916. This means that on average, sales that take place in urban areas are -0.021916 units less than the sales that take place in non-urban areas. However, the t-value is small and the p-value is large (greater than 0.05), indicating it is not statistically significant, and Urban (Yes) does not significantly impact the response variable (sales). It is also important to note that this variable is qualitative and binary, and the "No" of Urban is a baseline variable, and takes on the value of 0, while the "Yes" of Urban takes on the value of 1. 
+
+The coefficient of US is 1.200573. This means that on average, sales that happen in the US have 1.200573 units higher in sales than sales that happen outside of the US. The t-value is large and the p-value is very small, meaning that Urban significantly effects the response variable Sales. It is important to note that US (No) is a baseline variable and takes on the value of 0 for "No", as in the sale did not happen in the US, and US takes the value of 1 when the sale did take place in the US. 
+
+
+#### (c) Write out the model in equation form, being careful to handle the qualitative variables properly.
+Breaking down the regression equation:
+
+1. Regression model for Sales when Urban and US = 1 (Yes)
+$$
+Sales = \beta_0 + \beta_1 \cdot Price + \beta_2 \cdot Urban + \beta_3 \cdot US + \epsilon
+$$
+2. Regression model for Sales when Urban = 0 (No) and US = 1 (Yes)
+$$
+Sales = \beta_0 + \beta_1 \cdot Price + \beta_3 \cdot US + \epsilon
+$$
+3. Regression model for Sales when Urban = 0 (No) and US = 0 (No)
+$$
+Sales = \beta_0 + \beta_1 \cdot Price + \epsilon
+$$
+
+Defining the equations for each qualitative predictor:
+
+1. For Urban (No)
+$$
+Urban (No) = \beta_0 + \epsilon
+$$
+2. For Urban (Yes)
+$$
+Urban (Yes) = \beta_0 + \beta_2 \cdot Urban+ \epsilon
+$$
+3. For US (No)
+$$
+US (No) = \beta_0 + \epsilon
+$$
+4. For US (Yes)
+$$
+US (Yes) = \beta_0 + \beta_3 \cdot US+ \epsilon
+$$
+
+#### (d) For which of the predictors can you can you reject the null hypothesis H0 :βj =0?
+
+For the predictors Price and US I can reject the null hypothesis H0: βj =0 because they are statistically significant. 
+
+#### (e) On the basis of your response to the previous question, fit a smaller model that only uses the predictors for which there is evidence of association with the outcome.
+Using all the variables in the regression equation: 
+
+$$
+Sales = \beta_0 + \beta_1 \cdot Price + \beta_2 \cdot US + \epsilon
+$$
+Breaking down the regression equation:
+
+1. Regression equation for Sales when US = 0 (No)
+
+$$
+Sales = \beta_0 + \beta_1 \cdot Price + \epsilon
+$$
+
+2. Regression equation for Sales when US = 1 (Yes)
+$$
+Sales = \beta_0 + \beta_1 \cdot Price + \beta_2 \cdot US + \epsilon
+$$
+
+Defining the equations for the qualitative predictor US:
+
+1. For US (No)
+$$
+US (No) = \beta_0 + \epsilon
+$$
+For US (Yes)
+$$
+US (Yes) = \beta_0 + \beta_3 \cdot US+ \epsilon
+$$
+
