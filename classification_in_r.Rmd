@@ -1,0 +1,135 @@
+---
+title: "Classification_in_R"
+author: "Autumn Kloth"
+date: "2024-09-14"
+output:
+  word_document: default
+---
+
+## Question 1. 
+#### This question should be answered using the Weekly data set, which is part of the ISLR2 package. This data is similar in nature to the Smarket data discussed in class, except that it contains 1089 weekly returns for 21 years, from the beginning of 1990 to the end of 2010 (Exercise 13, Chapter 4 of ISLR (2nd edition)).
+
+##### (a). Produce some numerical and graphical summaries of the Weekly data. Do there appear to be any patterns?
+```{r, include=FALSE}
+chooseCRANmirror(graphics = FALSE, ind = 1)
+install.packages("ISLR2")
+library(ISLR2)
+```
+```{r}
+head(Weekly)
+cor(Weekly [,-9])
+attach(Weekly)
+plot(Year, Volume, main = "Volume vs Year",xlab = "Year", ylab = "Volume")
+```
+
+###### Explanation of code
+I am installing the package `ISLR` to use the dataset `Weekly`. I am then outputting the correlation and the plot of `Weekly` to see if any relationships exist or show in the numerical or graphical summaries of the `Weekly` data. For the `cor` function, I am excluding the `Direction` variable, as it is my response variable, and I want to look potential patterns among the predictor variables. Because of the strong correlation of Year and Volume in the numerical summary, I am plotting to see their pattern in the graph. 
+
+###### Answer to question
+The correlation between the lag variables and today's returns are close to 0, which means there is little correlation or pattern between today's returns and the previous' days returns. However, there is a strong correlation and increasing pattern between Year and Volume. When plotting the data, I see that Volume is increasing over time. This means that the average number of daily traded shares increases from 1990 to 2010. There are no other discernible patterns between any other variables. 
+
+##### (b). Use the full data set to perform a logistic regression with Direction as the response and the five lag variables plus Volume as predictors. Use the summary function to print the results. Do any of the predictors appear to be statistically significant? If so, which ones?
+```{r}
+glm.fits <- glm(Direction~Lag1+Lag2+Lag3+Lag4+Lag5+Volume, data=Weekly, family=binomial)
+summary(glm.fits)
+contrasts(Direction)
+```
+###### Explanation of code
+I am creating a GLM model of the full `Weekly` data set to perform a logistic regression with `Direction` as the response variable and the five lag variables plus the `Volume` as predictor variables.  I am using the `summary` function to show the numerical summary of the GLM model.I use the `contrasts` function to check that the value of 1 indicates the market goes up, and the value of 0 indicates the market goes down. 
+
+###### Answer to code
+The predictor Lag2 is the only is the only variable that appears to be statistically significant with a p-value less that 0.05. 
+
+##### (c). Compute the confusion matrix and overall fraction of correct predictions. Explain what the confusion matrix is telling you about the types of mistakes made by logistic regression.
+```{r}
+glm.probs <- predict(glm.fits, type = "response")
+glm.pred <- rep ("Down", 1089)
+glm.pred[glm.probs > .5] <- "Up"
+table(glm.pred, Weekly$Direction)
+```
+###### Explanation of code
+The `glm.probs` function is generating predicted probabilities from the logistical regression model `glm.fits` to return the predicted probabilities of `Direction`. 
+
+I am then creating a new vector called `glm.pred` that contains the number of rows in the `Weekly` data et all set to `Down`. 
+
+I am then changing the `glm.pred` vector by telling it to set the predicted class to `Up` if the probability in `glm.prods` is greater than 0.5. 
+
+I am using the `table` function to create a confusion matrix to compare the predicted data in `glm.pred ` to the actual data from the dataset in `Weekly$Direction`. 
+
+###### Answer to question
+The confusion matrix is telling me that the model correctly predicted 54 times that the market would go `Down` and it actually did go `Down`. There are 48 times when the model predicted the market to go `Down`, but it actually went `Up`. There are 557 times when the model predicted the market to go `Up` and it actually did go `Up`. And there are 430 times when the model predicted the market to `Down`, and it actually went `Up`. Overall, there are 54 true negatives, 48 false positives, 557 true positives, 430 false positives. When comparing the true and false positives/negatives, the model tends to predict an `Up` trend more frequently in the market, even when it is incorrect, showing their is upward bias in the model. 
+
+##### (d). Now fit the logistic regression model using a training data period from 1990 to 2008, with Lag2 as the only predictor. Compute the confusion matrix and the overall fraction of correct predictions for the held out data (that is, the data from 2009 and 2010).
+```{r}
+train <- (Year < 2009)
+Weekly.test <- Weekly[!train, ]
+Direction.test <- Direction[!train]
+glm.fits <- glm(Direction~Lag2, data=Weekly, family=binomial, subset=train)
+glm.probs <- predict(glm.fits, Weekly.test, type="response")
+glm.pred <- rep("Down", length(glm.probs))
+glm.pred[glm.probs > 0.5] <- "Up"
+table(glm.pred, Direction.test)
+```
+###### Explanation of code
+I am creating a vector called `train` that divides the data. The data from before the year 2009 will be used for testing, and that data after the year 2009 will be used to train the model. 
+
+In creating the function `Weekly.test` I am writing a reverse vector to only include the data from the year 2009 and beyond as my testing data from the model. 
+
+I am then creating a vector for `Direction` (the response variable with the actual market directions) that includes the market directions from 2008 and beyond. I will use these actual market directions to compare against the model predictions. 
+
+With `glm.fits`, I am fitting a regression model only using the data from 1990-2008 (because subset = train, which only contains the training data from < 2009). 
+
+For `glm.probs`, I am using the regression model `glm.fits` to predict the probabilities for the 2009-2010 data. `Weekly.test` is the dataset, and `type=response` predicts that the market will go up. 
+
+I am then creating a vector `glm.pred` that assumes are predictions are `Down` for the length of `glm.probs`. 
+
+I am then updating the `glm.pred` predictor, saying if the predicted probability is > 0.5, the market direction will be `Up`. 
+
+I am then creating a confusion matrix to compare the predicted values of `glm.pred` to the actual market values in `Direction.test`. This will show how well the model performed on the test set (2009-2010). 
+
+###### Answer to question
+The model accurately predicted that the market would go `Down` 9 times, when it did in fact go `Down` 9 times (true negatives). The confusion matrix falsely predicted. The model predicted that the market would go down on five occasions, but it actually went `Up` on those occasions (false negatives). The model falsely predicted the market would go `Up` 34 times, when it actually went `Down` on those 34 occasions (false positives), and the model correctly predicted the market would go `Up` 56 times, when it did go `Up` 56 times (true positives). The model tends to over predict upward movements in the market. 
+
+The overall accuracy of correct predictions is calculated by adding the true positives and the true negatives together and then dividing it by the total number of predictions.
+
+$$
+Overall Accuracy: \frac{56 + 9}{9 + 5 + 34 + 56} = 62.5\%
+$$
+
+Or I could do:
+
+```{r}
+mean(glm.pred == Direction.test)
+```
+
+##### (e). Repeat (d) using LDA. 
+```{r, include=FALSE}
+library(MASS)
+```
+```{r}
+lda.fit <- lda(Direction~Lag2, data=Weekly, family =binomial, subset=train)
+lda.pred <- predict (lda.fit, Weekly.test)
+table (lda.pred$class, Direction.test)
+mean(lda.pred$class == Direction.test)
+```
+###### Explanation of the differences between the LDA model and GLM model
+The LDA model assumes that features are normally distributed while the GLM model assumes the response variable follows a certain distribution.LDA is used with certain assumptions about the data distribution and model, while the GLM is used to model data with different types of distributions. 
+
+###### Explanation of code
+Next, I am going to explain my code. This code is similar to part(d), except I am using a linear discriminant analysis model rather than a generalized linear model. 
+
+I am using the function `lda.fit` to perform a linear discriminant analysis. The explanation of the LDA model is very similar to the GLM model, except I do not need to include the `family=binomial` part, because that is a logistical regression parameter. 
+
+I am then generating predictions based off of the `lda.fit` model using the `Weekly.test` dataset that contains the test data from 2009-2010. 
+
+I am then creating a confusion matrix to compare the predicted directions in `lda.pred$class` to the actual market directions in `Directions.train`.
+
+I am then using the `mean` function to calculate the accuracy of the model. I am creating a logical vector to compare the predicted directions to the actual directions, and then returning the proportion of the predicted directions. The logical vector is a boolean vector where `TRUE` represent correct predictions, and `FALSE` represent incorrect predictions. The `mean` function outputs the fraction of the `TRUE` values. 
+
+###### Answer to question
+The LDA model gives exactly the same results as the regression model in (d) with an accuracy of 62.5%. The LDA model is not improving the overall accuracy of correct predictions. To figure out why, we would have to test the data using the QDA model. 
+
+
+
+
+
