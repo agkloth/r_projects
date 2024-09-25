@@ -1,0 +1,55 @@
+---
+title: "Working with log likelihood functions"
+author: "Autumn Kloth"
+date: "2024-09-18"
+output: html_document
+---
+
+## Exercise 2
+In this exercise, I am simulating data from a Poisson distribution and am plotting the corresponding log likelihood function with a vertical line at the maximum likelihood estimate. 
+
+```{r}
+lambda_true <- 4; n <- 20
+
+y <- rpois(n=n, lambda=lambda_true)
+lambda_hat <- mean(y)
+
+log_likelihood <- function(lambda, y){
+  n <- length(y)
+  sum <- 0
+  for(i in 1:n){
+    sum <- sum + dpois(y[i], lambda=lambda, log=TRUE)
+  }
+  return(sum)
+} 
+
+lambda_grid <- seq(from=1, to=10, length.out=1000)
+
+log_likelihood_values <- log_likelihood(lambda_grid, y=y)
+
+plot(x=lambda_grid, y=log_likelihood_values, type="l", xlab=expression(lambda), ylab=expression(l(lambda)))
+
+abline(v=lambda_hat, col="blue", lwd=2)
+```
+
+## Exercise 3
+In this exercise, I am writing an R function `lprime` that takes an input $𝜆$ as well as the data $𝑌1,...,𝑌𝑛$ and returns the value of $𝑙′(𝜆)$.To check that your function works, evaluate it at the sample mean. 
+
+```{r}
+set.seed(1)
+lambda_true <- 4; n<- 20
+y <- rpois(n=n, lambda=lambda_true)
+
+lprime <- function(lambda, y){
+  n <- length (y)
+  derivative <- sum ((y / lambda)-1)
+  return(derivative)
+  }
+
+lambda_hat <- mean(y)
+lambda_hat
+
+checking_function <- lprime(lambda_hat, y)
+checking_function
+```
+Yes, the results above are expected. I am  calculating the derivative of the log-likelihood function at the sample mean. This is the MLE for the Poisson parameter. The MLE evaluated at the sample mean should be 0. The derivative at `lambda_hat` is very close to 0, which is what we would expect because the computer can't calculated exactly.  

@@ -1,0 +1,52 @@
+---
+title: "resampling_methods"
+author: "Autumn Kloth"
+date: "2024-09-20"
+output:
+  word_document: default
+  html_document: default
+---
+
+## Question 1
+#### (a). We will use a logistic regression model to predict the the probability of default using income and balance on the Default data set in the ISLR2 library. 2e will now compute estimates for the standard errors of the income and balance logistic regression coefficients in two different ways: (1) using the bootstrap,and (2) using the standard formula for computing the standard errors in the glm() function. Do not forget to set a random seed before beginning your analysis (Exercise 6, Chapter 5, ISLR (2nd edition)).
+
+#### Fit a logistic regression model using income and balance to predict default. Using the summary() function, determine the estimated standard errors for the coefficients.
+```{r,include=FALSE}
+chooseCRANmirror(graphics = FALSE, ind = 1)
+install.packages("ISLR2")
+library(ISLR2)
+attach(Default)
+head(Default)
+```
+
+```{r}
+set.seed(1)
+glm.fit <- glm(default ~ income + balance, data = Default, family = binomial)
+summary(glm.fit)
+```
+##### Explanation of code
+In this code, I am fitting a linear regression model, with `default` being the response variable and `income` and `balance` being the predictor variables. I am trying to predict if a person will default on their credit based on their income and balance. I am specifying that I am using a logistic regression by stating the outcome is binary (with the `family` function). 
+
+#### (b). Write a function, boot.fn(), that takes as input the Default data set as well as an index of the observations, and that outputs the coefficient estimates for income and balance in the multiple logistic regression model. 
+```{r}
+boot.fn <- function(data, index) {
+    fit <- glm(default ~ income + balance, data = data, family = binomial, subset = index)
+    return (coef(fit))
+}
+```
+
+##### Explanation of code
+In this code, I am creating a bootstrapping function that computes coefficients from a linear regression model. By stating `index` I specify which observations from the dataset should be included in the model fitting. This allows for resampling different subsets in the data. I am then refitting a logistic regression model, but only for the sample of data I specified in my function. Different sets of indices will be used to fit the model on different subsets of the data. I am returning the coefficients and intercepts for `balance` and `income`. 
+
+#### (c). Use the boot() function together with your boot.fn() function to estimate the standard errors of the logistic regression coefficients for income and balance.
+```{r}
+library(boot)
+boot_function <- boot(data=Default, boot.fn, R=1000)
+boot_function
+```
+
+##### Explanation of the code
+In this code, I am fitting a logistic regression model on the data I defined earlier in `boot.fn`. The `boot` function applies to `boot.fn` and will generate 1000 bootstrap samples. In every iteration, a subset of the data is sampled (with replacement), and the boot.fn() function is applied to calculate the coefficients for the logistic regression model on that sample.
+
+#### (d). Comment on the estimated standard errors obtained using the glm() function and using your bootstrap function.
+The estimated standard errors obtained using the `glm` function and using the bootstrap function are pretty close. Both are small, with estimated standard errors from the `glm` function being smaller. This is because the values computed using the `glm` function through the `summary` function are making assumptions of the data based off the model $\hat{y} = B_0 + B_1x + \epsilon$, while the bootstrap function is not. 
