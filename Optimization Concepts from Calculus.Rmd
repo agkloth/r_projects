@@ -1,0 +1,825 @@
+---
+title: "Optimization and Solving Nonlinear Equations"
+author: "Autumn Kloth"
+date: "2024-09-11"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Maxima and Minima
+Suppose f is a real value function defined on an interval I ⊆ ℝ. The goal of optimization is to find those points in I where f is largest or smallest. These points can be maximizers for minimizers in a local or global sense: 
+
+- A point $𝑥_0 ∈𝐼$ is called a local maximum point of𝑓 if $𝑓(𝑥_0) ≥𝑓(𝑥)$ for all$𝑥$ near $𝑥_0$.
+- If $𝑓(x_0) ≥𝑓(𝑥)$ for all $𝑥∈𝐼$, not just$𝑥$near $𝑥0$, then $𝑥_0$ is a global maximum point of$𝑓$.
+- Similarly, we say a point $x_0∈𝐼$ is a local minimum point of $𝑓$ if $𝑓(𝑥_0)≤𝑓(𝑥)$ for all $𝑥$near $𝑥_0$.
+- If $f(𝑥_0)≤𝑓(𝑥)$ for all $x ∈𝐼$, not just $𝑥$ near $x_0$, then $x_0$ is a global minimum point of $f$.
+
+Summary: A local maximum point is not always a global maximum point (it depends on how many points are in your graph). 
+
+## Critical Points:
+A maxima or minima of function 𝑓 can only occur at certain types of points:
+
+1. $𝑥$ such that $𝑓′(𝑥)=0$ (stationary point)
+
+2. $𝑥$ such that $𝑓′(𝑥)$ does not exist (rough point)
+
+3. $𝑥$ on the boundary of $𝐼$ (endpoint)
+
+A stationary point occurs when the tangent line at x is 0. 
+A rough point occurs when a graph is "pointy" i.e. the absolute value function; the slope is     1 above 0 and -1 below 0; horizontal tangent line
+
+
+```{r}
+# Create a vector x of equally spaced points and plot f(x)
+x <- seq(from=-3, to=3, by=.01)
+plot(x=x, y=x^2 - 2*abs(x-.5), type="l", ylab="f(x)", xlab="x")
+```
+
+The critical points are -3, -1, 0.5, 1, and 3. -3 is an endpoint, -1 is a stationary point, 0.5 is a rough point, 1 is a stationary point, and 3 is an endpoint. -3 is a local maximum, -1 is a global minimum, 0.5 is a local maximum, 1 is a local minimum, and 3 global maximum. 
+
+## A procedure for finding global maximum or minimum points of 𝑓 on 𝐼.
+1. Solve $𝑓′(𝑥)=0$ to find the stationary points (finding the roots or 0's of 𝑓′ ).
+2. Evaluate $𝑓(𝑥)$ at the stationary points along with the other critical points (the rough points and endpoints).
+3. Compare the values to identify the global maxima and minima.
+
+Summary: This procedure does not allow us to determine whether the other critical points are local maximum points, local minimum points, or neither. We can use the second derivative test to do this. 
+
+## The second derivative test
+Tells us the following:
+
+1. If $𝑓″(𝑥_0)<0$, then 𝑥0 is a local maximum point.
+2. If $𝑓″(𝑥_0)>0$, then 𝑥0 is a local minimum point.
+3. If $𝑓″(𝑥_0)=0$, the test is inconclusive.
+
+## Example
+```{r}
+# Create a vector x of equally spaced points and plot f(x)
+x <- seq(from=-3, to=3, by=.01)
+plot(x=x, y=x^3/3 - x, type="l", ylab="f(x)", xlab="x")
+```
+
+The first derivative of the function is $x^2-1$. 
+The second derivative of the function is $2x$. 
+The critical points are -3, 3, -1, 1. 
+
+## Example (Identifying Critical Points)
+Consider $f(x) = x^2 - 2|x - 1/2|$ on $I = [-3, 3]$.  
+Critical points: $-3, 3, 1/2$.
+
+To find the remaining critical points (which are stationary points), we can write the function $f'(x)$ like so:
+
+For $f(x)$:
+
+$$
+f(x) = 
+\begin{cases} 
+x^2 - 2(x - 1/2), & \text{if } x > 1/2 \\
+x^2, & \text{if } x = 1/2 \\
+x^2 + 2(x - 1/2), & \text{if } x < 1/2 
+\end{cases}
+$$
+
+Now, for $f'(x)$:
+
+$$
+f'(x) =
+\begin{cases} 
+2x - 2, & \text{if } x > 1/2 \\
+\text{DNE}, & \text{if } x = 1/2 \\
+2x + 2, & \text{if } x < 1/2
+\end{cases}
+$$
+
+## Example (Where our tools fail)
+
+Consider the function $f(x) = \log(x)(1+x)^{-1}$ on $I = [1, 100]$.
+
+Critical points: $1, 100$ (endpoints).
+
+No rough points on the interval, so we can take the derivative.
+
+We need to find the stationary points (take the derivative of $f$ and set it equal to 0).
+
+$$
+f(x) = \log(x)(1+x)^{-1}
+$$
+
+Taking the derivative:
+
+$$
+f'(x) = (1+x)^{-1} \cdot \frac{d}{dx}[\log(x)] + \log(x) \cdot \frac{d}{dx}[(1+x)^{-1}]
+$$
+
+$$
+= \frac{1}{x} \cdot \frac{1}{1+x} + \log(x) \cdot \left(-\frac{1}{(1+x)^2}\right) \cdot \frac{d}{dx}[1+x]
+$$
+
+$$
+= \frac{1}{x(1+x)} - \frac{\log(x)}{(1+x)^2}
+$$
+
+Setting it equal to zero:
+
+$$
+f'(x) = 0
+$$
+
+We then solve:
+
+$$
+\frac{1}{x(1+x)} = \frac{\log(x)}{(1+x)^2}
+$$
+
+But this is problematic as it’s difficult to solve analytically:
+
+$$
+\frac{1}{x} = \frac{\log(x)}{1+x}
+$$
+
+At this point, solving analytically isn't feasible without numerical methods.
+
+---
+
+# Maximum Likelihood Estimation
+
+Suppose $Y_1, \dots, Y_n$ have a joint probability density function $f(y_1, \dots, y_n \mid \theta)$ that depends upon an unknown parameter vector $\theta = (\theta_1, \dots, \theta_p) \in \Theta$. The likelihood function $L(\theta)$ is the joint density viewed as a function of $\theta$, i.e. $L(\theta) = f(Y_1, \dots, Y_n \mid \theta)$.
+
+If $Y_1, \dots, Y_n$ are independent and identically distributed (i.i.d.) each having a common density $f(y \mid \theta)$, then the likelihood function factors as:
+
+$$
+L(\theta) = \prod_{i=1}^n f(Y_i \mid \theta)
+$$
+
+For any value of our unknown parameter, we ask: how likely is the data to be generated under that parameter? 
+
+The maximum likelihood estimate $\hat{\theta}$ is the value of $\theta$ that maximizes the likelihood function $L(\theta)$. Thus, maximum likelihood estimation is fundamentally an optimization problem.
+
+ 
+## Example (A Likelihood Function Based on the Normal Distribution)
+Trying to find mean of data we know is norally distributed
+
+Let's plot the likelihood function for sume simulated data and confirm that the sample mean is the global maximum point of the likelihood function
+```{r}
+# Choose true values of mu_true and sigma_true and the sample size n that will be used to simulate data 
+mu_true <- 1; sigma_true <- 2; n <- 20
+
+# Simulate the data 
+y <- rnorm(n=n, mean=mu_true, sd=sigma_true)
+
+# Calculate the sample mean mu_hat
+mu_hat <- mean(y)
+
+# Define a function which evaluates the likelihood 
+likelihood <- function(mu, sigma, y){
+  n <- length(y)
+  prod <- 1
+  for(i in 1:n){
+    prod <- prod*dnorm(y[i], mean=mu, sd=sigma)
+  }
+  return(prod)
+} 
+
+# Let's begin plotting the likelihood as a function of mu:
+
+# Create a grid/mesh of 1000 evenly spaced mu values at which we'll evaluate the likelihood 
+mu_grid <- seq(from=-1, to=3, length.out=1000)
+
+# Use the function we defined to evaluate the likelihood at these mu values. Notice that R allows us to evaluate the likelihood at all the mu values with one function call. 
+likelihood_values <- likelihood(mu_grid, sigma=sigma_true, y=y)
+
+# Create the plot. The expression function allows us to have mathematical expressions within a plot.
+plot(x=mu_grid, y=likelihood_values, type="l", xlab=expression(mu), ylab=expression(L(mu)))
+
+# Add a vertical line at the sample mean mu_hat
+abline(v=mu_hat, col="red", lwd=2)
+```
+
+The likelihood is maximized at the maximum likelihood estimate. 
+
+The expression for the likelihood given above is a product of $n$ terms. If many of these terms are small, as is often the case, the likelihood will be much, much smaller. Storing very large or very small numbers with high precision requires a lot of computer memory. As $n$ gets big, the likelihood values quickly become so small that the memory required to store them exceeds what has been allocated for that purpose. At that point, the value is rounded down to zero and our calculation goes off the rails. This situation is called **numerical underflow**. 
+
+This example illustrates one reason that we typically prefer to work with the (natural) logarithm of the likelihood rather than the likelihood itself. The log likelihood function is $𝑙(𝜃)=log𝐿(𝜃) $.
+
+Because the logarithm is a monotonically increasing function, the log likelihood function has the same maximum points as the likelihood function. Thus, we are free to use the log likelihood function to find a maximum likelihood estimate. The result will be the same. 
+
+There are (at least) two advantages to working with the log likelihood:
+
+- We avoid problems with numerical underflow.
+- The log likelihood often has a simpler mathematical form than the likelihood.
+
+There are a few important properties of the logarithm that are important to review before we begin working with log likelihood functions:
+
+- Products: $ \log(xy) = \log(x) + \log(y) $
+- Quotients: $ \log\left(\frac{x}{y}\right) = \log(x) - \log(y) $
+- Powers: $ \log(x^p) = p \log(x) $
+- Roots: $ \log\left(\sqrt[p]{x}\right) = \frac{1}{p} \log(x) $
+
+## Example (A Log Liklihood Funtion Based on the Normal Distribution)
+In the previous example, the likelihood is the product
+$L(\mu) = \prod_{i=1}^{n} f(Y_i | \mu, \sigma^2).$
+
+Applying the product property of the logarithm listed above, the log likelihood is
+$l(\mu) = \sum_{i=1}^{n} \log f(Y_i | \mu, \sigma^2).$
+
+Let’s recreate the plot from the previous example, but this time with the log likelihood function.
+```{r}
+# Choose true values of mu_true and sigma_true and the sample size n that will be used to simulate data 
+mu_true <- 1; sigma_true <- 2; n <- 20
+
+# Simulate the data 
+y <- rnorm(n=n, mean=mu_true, sd=sigma_true)
+
+# Calculate the sample mean mu_hat
+mu_hat <- mean(y)
+
+# Define a function which evaluates the log likelihood 
+log_likelihood <- function(mu, sigma, y){
+  n <- length(y)
+  sum <- 0
+  for(i in 1:n){
+    sum <- sum + dnorm(y[i], mean=mu, sd=sigma, log=TRUE)
+  }
+  return(sum)
+} 
+
+# Let's begin plotting the log likelihood as a function of mu:
+
+# Create a grid/mesh of 1000 evenly spaced mu values at which we'll evaluate the likelihood 
+mu_grid <- seq(from=-1, to=3, length.out=1000)
+
+# Use the function we defined to evaluate the log likelihood at these mu values. Notice that R allows us to evaluate the log likelihood at all the mu values with one function call. 
+log_likelihood_values <- log_likelihood(mu_grid, sigma=sigma_true, y=y)
+
+# Create the plot. The expression function allows us to have mathematical expressions within a plot.
+plot(x=mu_grid, y=log_likelihood_values, type="l", xlab=expression(mu), ylab=expression(l(mu)))
+
+# Add a vertical line at the sample mean mu_hat
+abline(v=mu_hat, col="red", lwd=2)
+```
+
+The log likelihood obtains its global maximum at the sample mean and we’ve avoided the problem with numerical underflow we saw when working with the likelihood itself. Even as we increase the sample size from n=20 to n=2000, the values on the y-axis remain reasonable. We also see that, in this example, the log likelihood function is a simple quadratic function.
+
+## Example (Working with the Log Likelihood Function Based on the Normal Distribution)
+\textbf{Example (Working with the log likelihood based on the normal distribution)}
+
+We'll:
+
+- Write a nice expression for $l(\mu)$.
+- Write down an expression for $l'(\mu)$.
+- Verify that $\hat{\mu} = \frac{1}{n} \sum_{i=1}^{n} Y_i$ is the sample mean, i.e., $\hat{\mu}$ satisfies $l'(\hat{\mu}) = 0$.
+
+Let's rewrite the density:
+
+$$
+f(y \mid \mu, \sigma^2) = \left( 2\pi\sigma^2 \right)^{-\frac{1}{2}} \exp \left\{ -\frac{1}{2} \left( \frac{y - \mu}{\sigma} \right)^2 \right\}
+$$
+
+$$
+\Rightarrow \log f(y \mid \mu, \sigma^2) = -\frac{1}{2} \log (2\pi\sigma^2) - \frac{1}{2} \left( \frac{y - \mu}{\sigma} \right)^2
+$$
+
+Plugging this into our prior expression for $l(\mu)$, we get:
+
+$$
+l(\mu) = \log L(\mu) 
+= \frac{n}{2} \log(2\pi\sigma^2) - \frac{1}{2\sigma^2} \sum_{i=1}^{n}(Y_i - \mu)^2
+$$
+
+$$
+= \frac{n}{2} \log(2\pi) + \frac{n}{2} \log(\sigma^2) - \frac{1}{2\sigma^2} \sum_{i=1}^{n}(Y_i - \mu)^2
+$$
+
+$$
+= -\frac{n}{2} \log(2\pi) - \frac{n}{2} \log(\sigma^2) - \frac{1}{2\sigma^2} \sum_{i=1}^{n}(Y_i - \mu)^2
+$$
+
+Now, we find the derivative of $l(\mu)$:
+
+$$
+l'(\mu) = \frac{d}{d\mu} l(\mu)
+= -\frac{1}{2\sigma^2} \frac{d}{d\mu} \sum_{i=1}^{n}(Y_i - \mu)^2
+= -\frac{1}{2\sigma^2} \cdot 2 \sum_{i=1}^{n} (Y_i - \mu)(-1)
+= \frac{1}{\sigma^2} \sum_{i=1}^{n} (Y_i - \mu)
+$$
+
+Setting $l'(\mu) = 0$:
+
+$$
+0 = \frac{1}{\sigma^2} \sum_{i=1}^{n} (Y_i - \mu)
+\Rightarrow \sum_{i=1}^{n} Y_i = n\mu
+\Rightarrow \hat{\mu} = \frac{1}{n} \sum_{i=1}^{n} Y_i
+$$
+
+Now, substituting $\hat{\mu}$ back into $l'(\mu)$:
+
+$$
+l'(\hat{\mu}) = 0
+$$
+
+$$
+\Rightarrow \frac{1}{\sigma^2} \left( \sum_{i=1}^{n} y_i - n \hat{\mu} \right) = 0
+$$
+
+$$
+\Rightarrow \sum_{i=1}^{n} y_i - n \hat{\mu} = 0
+$$
+
+$$
+\Rightarrow \hat{\mu} = \frac{1}{n} \sum_{i=1}^{n} y_i
+$$
+ 
+Remember: The maximum likelihood estimate is not always the mean. 
+
+# Iterative Methods: maximum points, minimum points, or roots
+
+We'll discuss finding local max points of a function $g(x)$ because our motivation is based on maximum likelihood estimation (MLE) with $g(x)$ being our likelihood function $l(\theta)$. But the whole discussion applies to finding local min points as well: local max points of $g(x)$ are going to be the local minimum points of $-g(x)$. 
+
+When using the maximum likelihood estimation, the function $g(x)$ will be replaced by the log likelihood function $l(\theta)$. We will often find an MLE by searching for a root of the score function $l'(\theta) = 0$. The **score function** is the derivative of the log likelihood, i.e., solving $l'(\hat{\theta}) = 0$. We are interested in finding this because we know the maximum has to happen at a critical stationary point, and we can find that by setting the derivative to zero.
+
+To find a local max point of a function $g(x)$, we provide an initial (starting value) guess $x^{(0)}$. In the updating equation, we produce a new and improved guess $x^{(t+1)}$ from the most recent value $x^{(t)}$. This step (applying the updated equation) is repeated for $t = 0, 1, 2$, etc., until iterations are stopped. Updating equations are designed with the goal that $x^{(t)}$ converges to a local max point $x^*$ as $t$ gets large. They often make use of derivative information and some approximation. The exact same discussion applies to finding a root. We compute the iterative methods until we have reached convergence or done the amount of iterative methods needed to be calculated. 
+
+# The Bisection Method
+The bisection method is an iterative root finding algorithm. The updating equation of the bisection method is based on the intermediate value theorem from calculus. The Bisection Method finds values of a function where that function is equal to 0. It is useful for finding stationary points. 
+
+In the Bisection Method, the part of the method we are going to use is Bolzano's theorem, which states that if a continuous function has values of opposite signs inside an interval, then it has a root in that interval. 
+
+Suppose $g(a_0) \cdot g(b_0) \leq 0$. This is just a concise way of saying that $g(a_0)$ and $g(b_0)$ have opposite signs. The IVT implies that there exists at least one root $x^* \in [a_0, b_0]$.
+
+### The Algorithm:
+Let $x^{(t)} = \frac{a_t + b_t}{2}$ be our starting value. For $t = 0, 1, 2, \dots$, we update as follows:
+
+### Step 1:
+Define a new interval $[a_{t+1}, b_{t+1}]$ as:
+
+$$
+[a_{t+1}, b_{t+1}] = 
+\begin{cases}
+[a_t, x^{(t)}] & \text{if } g(a_t) \cdot g(x^{(t)}) \leq 0 \\
+[x^{(t)}, b_t] & \text{if } g(a_t) \cdot g(x^{(t)}) > 0 
+\end{cases}
+$$
+
+### Step 2:
+Set $x^{(t+1)} = \frac{a_{t+1} + b_{t+1}}{2}$.
+
+## Let's Prove That It Works:
+
+- Each iteration halves the length of the interval, so that:
+  
+  $$ b_t - a_t = \frac{1}{2^t} \cdot (b_0 - a_0) $$
+
+- Taking the limit of both sides:
+
+  $$ \lim_{t \to \infty} a_t = \lim_{t \to \infty} b_t $$
+
+- Thus, the Bisection method converges to some point that we'll call $x^\infty$.
+
+- At each iteration, we have that $g(a_t) \cdot g(b_t) \leq 0$.
+
+- Taking the limit of both sides, we have:
+
+  $$ \lim_{t \to \infty} g(a_t) \cdot g(b_t) \leq 0 $$
+
+  Which implies:
+
+  $$ g\left(\lim_{t \to \infty} a_t\right) \cdot g\left(\lim_{t \to \infty} b_t\right) \leq 0 $$
+
+  So:
+
+  $$ g(x^\infty)^2 \leq 0 \implies g(x^\infty) = 0 \implies x^\infty \in [a_0, b_0] \text{ is a root}. $$
+
+
+
+- On the endpoints of the interval, $g'$ at the beginning and end of the interval must have different signs. Since $g'$ is a continuous function, by Bolzano's Theorem, $g'$ must pass through 0 at some point on the interval. It could also be equal to 0 at one of the endpoints. Therefore, we know a root will occur on the interval.
+
+- This is just a concise way of saying $g'(a_0)$ and $g'(b_0)$ have opposite signs (or one of them is equal to 0). The Intermediate Value Theorem (IVT) implies that there exists at least one root $x^*$ in the interval $[a_0, b_0]$.
+
+- The starting point will always be the middle of the interval.
+
+
+## Example (Performing the Bisection Method with R)
+```{r}
+#########################################################################
+### Bisection method to find the maximum of g(x) = log(x)/(x+1)
+#########################################################################
+# a = initial left endpoint
+# b = initial right endpoint
+# x = initial value
+# itr = number of iterations to run
+# g = objective function (the function we are trying to maximize / minimize)
+# g.prime = first derivative of objective function (the function we are trying to find a root of)
+#########################################################################
+
+## Initial values
+a <- 1; b <- 5; x <- (a+b)/2; itr <- 10
+
+## Define functions that evaluate g(x) and g'(x)
+g <- function(x){
+  return(log(x)/(1+x))
+}
+
+g.prime <- function(x){
+  numerator <- 1 + 1/x - log(x)
+  denominator <- (1 + x)^2
+  return(numerator/denominator)
+}
+
+## Run the Bisection method for the number of iterations specified by the variable itr
+for (t in 1:itr){
+    if (g.prime(a)*g.prime(x) < 0) {
+      b <- x
+    } else {
+      a <- x
+    }
+    x <- a+(b-a)/2
+}
+
+# The output 
+x       # The final value of x, our guess at the location of the maximum of g(x) / root of g'(x)
+g(x)        # The objective function g(x) evaluated at x 
+```
+
+## Example (Performing the Bisection Method to Find the MLE of a Normal Mean)
+Recall that the maximum likelihood estimate $𝜇̂$ is a root of the score function, i.e. it satisfies $𝑙′(𝜇̂ )=$0. We will use the bisection method to locate$ 𝜇̂$ .This will work much the same as the previous example, except that $𝑔(𝑥)$ will be replaced by the log likelihood function $𝑙(𝜇)$ and $𝑔′(𝑥)$ will be replaced by the score function $𝑙′(𝜇)$.
+
+The bisection method (compared to Newston's method) is slower. Newton's Method will take fewer iterations to get the same accruacy. 
+
+```{r}
+# Choose true values of mu_true and sigma_true and the sample size n that will be used to simulate data 
+# from a normal distribution 
+mu_true <- 1; sigma_true <- 2; n <- 200
+
+# Simulate the data 
+y <- rnorm(n=n, mean=mu_true, sd=sigma_true)
+
+# Calculate the sample mean mu_hat. 
+# We know that the MLE for the mean of a normal distribution is the sample mean.
+mu_hat <- mean(y)
+
+# Define a function which evaluates the log likelihood. 
+# This code is from the previous example in which we plotted the log likelihood. 
+log_likelihood <- function(mu, sigma, y){
+  n <- length(y)
+  sum <- 0
+  for(i in 1:n){
+    sum <- sum + dnorm(y[i], mean=mu, sd=sigma, log=TRUE)
+  }
+  return(sum)
+} 
+
+#########################################################################
+### Bisection method to find the maximum of the normal log likelihood 
+#########################################################################
+# a = initial left endpoint
+# b = initial right endpoint
+# x = initial value
+# itr = number of iterations to run
+# g = objective function (the log likelihood function we'd like to maximize)
+# g.prime = first derivative of objective function (the score function we'd like to find a root of)
+#########################################################################
+
+## Initial values
+a <- -10; b <- 10; x <- (a+b)/2; itr <- 50
+
+## Define functions that evaluate g(x) (the log likelihood) and g'(x) (the score function)
+
+g <- log_likelihood
+
+# g.prime will be the score function, i.e. the derivative of the log likelihood. 
+# We worked out an expression for the score function in the previous example 
+# about working with the log likelihood function based on the normal distribution. 
+g.prime <- function(mu, sigma, y){
+  return(sum(y-mu)/sigma^2)
+}
+
+## Run the Bisection method for the number of iterations specified by the variable itr
+for (t in 1:itr){
+    if (g.prime(a, sigma_true, y)*g.prime(x, sigma_true, y) < 0) {
+      b <- x
+    } else {
+      a <- x
+    }
+    x <- a+(b-a)/2
+}
+
+# The output 
+x   - mu_hat    # The final value of x, our guess at the location of the MLE, minus the sample mean (the actual MLE)
+x
+g(x, sigma_true, y)     # The log likelihood evaluated at x 
+g.prime(x, sigma_true, y)   # The value of the score function evaluated at x 
+```
+
+## Newton's Method
+Newton's method is an iterative root finding algorithm. The updating equation of Newton’s method is based on Taylor approximation of $𝑔(𝑥) $or $𝑔′(𝑥)$. Taylor approximation is the basis of Newton's method
+
+### Taylor Approximation
+Suppose that the function $f$ is differentiable at the point $x_0$ and $k \geq 1$ is an integer. The $k$th order Taylor approximation to $f$ at $x_0$ is the function:
+
+$$
+f_{x_0,k}(x) = f(x_0) + f'(x_0)(x - x_0) + \frac{f''(x_0)}{2!}(x - x_0)^2 + \dots + \frac{f^{(k)}(x_0)}{k!}(x - x_0)^k
+$$
+
+#### A few comments:
+- The notation $f^{(k)}$ means the $k$th derivative of $f$.
+- The Taylor approximation $f_{x_0,k}$ is equal to $f$ at $x_0$, i.e., $f_{x_0,k}(x_0) = f(x_0)$. The approximation is best near the point $x_0$.
+- The $k$th order Taylor approximation $f_{x_0,k}$ is a $k$th degree polynomial. If $k = 1$, then $f_{x_0,k}(x)$ is a linear function; if $k = 2$, then $f_{x_0,k}(x)$ is a quadratic function; and so on.
+
+### Example (Lower-order Taylor Approximation for $\log(1 + x)$)
+
+Let $f(x) = \log(1 + x)$.
+
+The first approximation at $x_0 = 0$ is:
+
+$$
+f_{x_0,n=1}(x) = f(x_0) + f'(x_0) (x - x_0)
+$$
+
+We know that $f(0) = \log(1) = 0$ and:
+
+$$
+f'(x) = \frac{d}{dx} \log(1+x) = \frac{1}{1+x}
+$$
+
+So,
+
+$$
+f_{x_0,n=1}(x) = 0 + 1 \cdot (x - 0) = x - 1
+$$
+
+Now, let's compute the second-order approximation:
+
+$$
+f_{x_0,n=2}(x) = f_{x_0,n=1}(x) + \frac{f''(x_0)}{2} (x - x_0)^2
+$$
+
+First, find $f''(x)$:
+
+$$
+f''(x) = \frac{d}{dx} \left( \frac{1}{1+x} \right) = -\frac{1}{(1+x)^2}
+$$
+
+At $x_0 = 0$, we get:
+
+$$
+f''(0) = -1
+$$
+
+Thus, the second-order approximation becomes:
+
+$$
+f_{x_0,n=2}(x) = (x - 1) + \frac{-1}{2} (x - 1)^2
+$$
+
+### Example (Plotting Taylor Approximations of f(x) = log x at x =1):
+```{r}
+# Define a function to calculate the kth derivative of f(x) = log x
+fderiv <- function(x,k){
+  return((-1)^(k+1)*factorial(k-1)*x^(-k))
+}
+# The equation above comes from the pattern if we were to do the Taylor Series by hand
+
+# Now we can write a function that evaluates the kth order Taylor approximation 
+
+ftaylor <- function(x, x0, k){
+  
+  # Since the Taylor approximation is a sum, we will use a for loop 
+  sum <- log(x0) # Initialize the sum at the value of the constant term (first value in Taylor approx)
+  for(i in 1:k){
+    sum <- sum + fderiv(x=x0, k=i)/factorial(i)*(x-x0)^i
+  }
+# Adding one term to the Taylor Approximation for each loop 
+  return(sum)
+}
+
+# Now we plot f(x) = log x along with Taylor approximations
+
+xgrid <- seq(.01, 5, length.out=1000)
+# can't plot it at 0 because log(x) is undefined 
+plot(x=xgrid, y=log(xgrid), type="l", ylab="f(x)", xlab="x", lwd=3) 
+#plotting actual function 
+points(x=xgrid, y=ftaylor(x=xgrid, x0=1, k=1), type="l", lwd=2, col="blue") 
+#use points function to graph multiple lines on the same plot; first order Taylor approx. 
+points(x=xgrid, y=ftaylor(x=xgrid, x0=1, k=2), type="l", lwd=2, col="purple")
+#second order Taylor approx
+points(x=xgrid, y=ftaylor(x=xgrid, x0=1, k=8), type="l", lwd=2, col="red") #eight order Taylor approx
+
+```
+
+### The Idea Behind Newton's Methods
+
+Suppose $g'(x^*) = 0$ and $g''(x^*) \neq 0$. 
+
+Suppose $g(x)$ is continuously differentiable. At each iteration, we approximate $g(x)$ by its first-order Taylor approximation around $x^{(k)}$:
+
+$$
+g(x) \approx g(x^{(k)}) + g'(x^{(k)})(x - x^{(k)})
+$$
+
+Setting this approximation to zero gives us the next iterative step:
+
+$$
+0 = g(x^{(k)}) + g'(x^{(k)})(x^{(k+1)} - x^{(k)})
+$$
+
+We are approximating the root of the function (g'(x)) by finding the root of the first ordered Taylor approximation.
+
+##### Summary:
+
+The **Iterative Newton's Method** is used to solve for the root of a function. Suppose we have a function $g(x)$, which is continuously differentiable, with $g'(x^*) = 0$ and $g'(x) \neq 0$ elsewhere. The idea is to iteratively approximate $x^*$, the root of $g(x)$, using its first-order (linear) Taylor Approximation (TA) at $x^{(n)}$.
+
+### Taylor Approximation:
+
+$$
+g(x) \approx g(x^{(n)}) + g'(x^{(n)})(x - x^{(n)})
+$$
+
+Our goal is to iteratively solve for the root of this approximation. Setting the approximation to zero, we solve for $x^{(n+1)}$:
+
+$$
+0 = g(x^{(n)}) + g'(x^{(n)})(x^{(n+1)} - x^{(n)})
+$$
+
+Solving for $x^{(n+1)}$, we get the iterative update equation:
+
+$$
+x^{(n+1)} = x^{(n)} - \frac{g(x^{(n)})}{g'(x^{(n)})}
+$$
+
+### Updated Equation:
+
+$$
+x^{(n+1)} = x^{(n)} - \frac{g(x^{(n)})}{g'(x^{(n)})}
+$$
+
+## Our Assumptions:
+
+Suppose $g'(x)$ is continuously differentiable with $g'(x^*) = 0$ and $g''(x^*) \neq 0$.  
+At each iteration $t$, we approximate $g'(x)$ by its first-order (linear) TA at $x^{(t)}$:
+
+### Comments:
+
+1. We can find the same updating equation by approximating $g(x)$ by its second-order TA and setting $x^{(t+1)}$ equal to the maximum point of that TA.
+
+2. In a Maximum Likelihood Estimation (MLE) problem in which we seek $\theta$ such that $l'(\hat{\theta}) = 0$, the updating equation is given by:
+
+$$
+\theta^{(t+1)} = \theta^{(t)} - \frac{l'(\theta^{(t)})}{l''(\theta^{(t)})}
+$$
+
+
+### The Algorithm (Newton's Method)
+Newton’s method is easier to describe than the bisection method. Let $x^{(0)}$ be our starting value. For $t = 0, 1, 2, \dots$, we update as follows:
+
+$$
+x^{(t+1)} = x^{(t)} - \frac{g'(x^{(t)})}{g''(x^{(t)})}.
+$$
+
+Proving that Newton’s method converges to a root is more complicated than proving that the bisection method does. However, a convergence result is proven in the textbook. We’ll state the result without proof: If $g'''(x)$ is continuous and $x^*$ is a simple root of $g'(x)$, i.e. $g'(x^*) = 0$ but $g''(x^*) \neq 0$, then there exists a neighborhood of $x^*$ such that Newton’s method converges to $x^*$ for any choice of starting point $x^{(0)}$ in that neighborhood. There are other convergence results that rely on different assumptions.
+
+```{r}
+# Define the function g(x)
+g <- function(x) {
+  1 / (1 + x^2)
+}
+
+# Create a sequence of x values from 1 to 5
+x_vals <- seq(1, 5, by = 0.01)
+
+# Plot g(x)
+plot(x_vals, g(x_vals), type = "l", lwd = 2, 
+     xlab = "x", ylab = "g(x)", 
+     ylim = c(0, 0.5), 
+     main = "Plot of g(x)")
+
+# Add a horizontal line at y = 0 for reference
+abline(h = 0, lty = 2)
+```
+
+## Example (Performing Newton’s Method by Hand):
+To get a feel for how Newton’s method works, we can carry out the steps by hand, like we did for the bisection method. Go through this process to find the maximum of $g(x) = \frac{\log{x}}{1 + x}$ starting at $x^{(0)} = 3$. As before, the derivative $g'(x)$ looks like this:
+
+$$
+g'(x) = \frac{1 + \frac{1}{x} - \log{x}}{(1 + x)^2}.
+$$
+
+### Example (Implementation of Newton’s Method)
+```{r}
+#########################################################################
+### Newton's method to find the maximum of g(x) = log(x)/(x+1)
+#########################################################################
+
+#########################################################################
+# x = initial value
+# itr = number of iterations to run
+# g = objective function (the function we are trying to maximize / minimize)
+# g.prime = first derivative of objective function
+# g.2prime = second derivative of objective function
+#########################################################################
+
+## Initial value and number of iterations
+x <- 3
+itr <- 40
+
+## Define functions to evaluate g and its first two derivatives 
+g <- function(x){
+  return(log(x)/(1+x))
+}
+
+g.prime <- function(x){
+  numerator <- 1+(1/x)-log(x)
+  denominator <- (1+x)^2
+  return(numerator/denominator)
+}
+
+g.2prime <- function(x){
+  return((-1/((x^2)+(x^3)))-2*(1+(1/x)-log(x))/((1+x)^3))
+}
+
+## Apply the updating equation for the specified number of iterations
+for(i in 1:itr){
+  x <- x - g.prime(x)/g.2prime(x)
+}
+
+## Output
+x       # Final value of x
+g(x)    # Objective function evaluated at x 
+g.prime(x) # Derivative of the objective function evaluated at x
+```
+
+We assume we know the second derivative and that is it twice differentiable - and we assume that we will compute the convergence faster. 
+
+The Bisection Method assumes less of the function we are trying to find but computes slower. However, the Bisection method can be applied more. Newton's method requires us to calculate the second derivative. Newton's Method converges faster than the Bisection Method. Newton's method is faster but less robust. To prove that newton method's work, you need stronger assumptions as compared to the bisection method. For Newton's Method, we need second derivative. 
+
+When doing Newton Method's by hand, don't use the updating equation. For the quiz, if the teacher doesn't give us a range, the range of the Bisection Method is the plot. When doing Bisection Method at hand, 0 does not have to be at the bottom of the y-axis. 
+
+### Example (Where Newton's Method Can Fail)
+Optimization and root finding algorithms can fail. Here we explore an example where Newton’s method fails to find the root $ x* =0$ of $arctan(x)$ when the initial guess is too far away. Below is code which plots the function and perform’s Newton’s method with a starting value of $x(0)=3$.
+
+```{r}
+# Plot arctan(x). 
+
+xgrid <- seq(-3,3, length.out=1000)
+plot(x=xgrid, y=atan(xgrid), type="l", xlab="x", ylab="arctan(x)")
+```
+
+```{r}
+#########################################################################
+### Newton's method to find the maximum of arctan(x)
+#########################################################################
+
+#########################################################################
+# x = initial value
+# itr = number of iterations to run
+# g.prime = arctan(x), the function we want to find the root of 
+# g.2prime = derivative of arctan(x)
+#########################################################################
+
+## Number of iterations and initial value
+itr <- 5
+x <- 3
+xseq <- x # Here we create a variable xseq that will store all the values of x to help us see how Newton's method goes wrong
+
+## Define functions to evaluate two derivatives
+g.prime <- atan
+
+g.2prime <- function(x){
+  return(1/(x^2 + 1))
+}
+
+## Apply the updating equation for the specified number of iterations
+for(i in 1:itr){
+  x <- x - g.prime(x)/g.2prime(x)
+  xseq <- c(xseq, x)
+}
+
+## Output
+xseq        # The sequence of x values in Newton's method
+```
+
+Clearly, Newton’s method fails to converge to the root. However, if we rerun the code above with a different choice of initial value (e.g. $x(0)=.5$) then Newton’s method will successfully find the root.
+
+```{r}
+## Number of iterations and initial value
+itr <- 15
+x <- 0.5
+xseq <- x # Here we create a variable xseq that will store all the values of x to help us see how Newton's method goes wrong
+
+## Define functions to evaluate two derivatives
+g.prime <- atan
+
+g.2prime <- function(x){
+  return(1/(x^2 + 1))
+}
+
+## Apply the updating equation for the specified number of iterations
+for(i in 1:itr){
+  x <- x - g.prime(x)/g.2prime(x)
+  xseq <- c(xseq, x)
+}
+
+## Output
+xseq        # The sequence of x values in Newton's method
+```
