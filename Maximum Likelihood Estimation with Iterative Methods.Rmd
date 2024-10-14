@@ -1,0 +1,98 @@
+---
+title: "Maximum Likelihood Estimation with Iterative Methods"
+author: "Autumn Kloth"
+date: "2024-10-08"
+output: html_document
+---
+
+## Question 1. 
+In this code, I am using the Bisection method to find the maximum likelihood estimate in the Poisson model for the World Cup data. I am then verifying that the Bisection method is close to the sample mean. 
+```{r}
+y <- c(6, 2, 1, 0, 3, 1, 4, 1, 4, 3, 2, 3, 0, 1, 4, 4, 1, 3, 2, 1, 6, 3, 0, 2, 2, 2, 0, 2, 2, 2, 4, 4, 3, 3, 4, 2, 2, 3, 0, 5, 2, 3, 5, 4, 1, 1, 2, 2, 2, 3, 1, 1, 1, 0, 3, 4, 2, 3, 0, 1, 2, 1, 4, 2, 2, 0, 2, 1, 2, 1, 1, 4, 2, 1, 2, 2, 0, 3, 1, 1, 3, 5, 3, 2, 1, 4, 0, 1, 2, 3, 2, 2, 4, 7, 1, 2, 1, 3, 4, 2, 1, 1, 1, 3, 5, 0, 4, 3, 0, 3, 3, 0, 3, 3, 5, 4, 3, 3, 0, 1, 3, 2, 4, 1, 5, 1, 5, 1, 4, 1, 6, 4, 3, 4, 3, 3, 3, 3, 3, 4, 0, 3, 3, 0, 2, 5, 2, 4, 3, 3, 0, 1, 7, 3, 1, 4, 1, 1, 6, 4, 3, 2, 5, 4, 1, 0, 5, 3, 5, 4, 3, 0, 1, 3, 1, 2, 2, 2, 2, 3, 3, 1, 8, 3, 1, 0, 0, 1, 3, 2, 1, 3, 2, 2, 3, 2, 2, 3, 1, 3, 1, 3, 1, 0, 8, 0, 3, 1)
+
+a <- .001; b <- max(y); x <- (a+b)/2; itr <- 50
+
+n <- length (y)
+lambda_hat <- mean(y)
+
+g <- function(lambda, y){
+  n <- length(y)
+  sum <- 0
+  for(i in 1:n){
+    sum <- sum + dpois(y[i], lambda=lambda, log=TRUE)
+  }
+  return(sum)
+} 
+
+g.prime <- function(lambda, y){
+  n <- length (y)
+  derivative <- sum ((y / lambda)-1)
+  return(derivative)
+  }
+
+
+for (t in 1:itr){
+    if (g.prime(a, y)*g.prime(x, y) < 0) {
+      b <- x
+    } else {
+      a <- x
+    }
+    x <- a+(b-a)/2
+}
+
+lambda_hat_bisec <- x
+lambda_hat_bisec
+
+lambda_hat_bisec - lambda_hat
+```
+
+## Question 2.
+In this exercise, I am plotting the probability mass function that best fits the data in the maximum likelihood sense. I am then comparing and commenting on the differences between the histogram of the observed data and the plot of the Poisson distribution. 
+```{r}
+y <- c(6, 2, 1, 0, 3, 1, 4, 1, 4, 3, 2, 3, 0, 1, 4, 4, 1, 3, 2, 1, 6, 3, 0, 2, 2, 2, 0, 2, 2, 2, 4, 4, 3, 3, 4, 2, 2, 3, 0, 5, 2, 3, 5, 4, 1, 1, 2, 2, 2, 3, 1, 1, 1, 0, 3, 4, 2, 3, 0, 1, 2, 1, 4, 2, 2, 0, 2, 1, 2, 1, 1, 4, 2, 1, 2, 2, 0, 3, 1, 1, 3, 5, 3, 2, 1, 4, 0, 1, 2, 3, 2, 2, 4, 7, 1, 2, 1, 3, 4, 2, 1, 1, 1, 3, 5, 0, 4, 3, 0, 3, 3, 0, 3, 3, 5, 4, 3, 3, 0, 1, 3, 2, 4, 1, 5, 1, 5, 1, 4, 1, 6, 4, 3, 4, 3, 3, 3, 3, 3, 4, 0, 3, 3, 0, 2, 5, 2, 4, 3, 3, 0, 1, 7, 3, 1, 4, 1, 1, 6, 4, 3, 2, 5, 4, 1, 0, 5, 3, 5, 4, 3, 0, 1, 3, 1, 2, 2, 2, 2, 3, 3, 1, 8, 3, 1, 0, 0, 1, 3, 2, 1, 3, 2, 2, 3, 2, 2, 3, 1, 3, 1, 3, 1, 0, 8, 0, 3, 1)
+hist(y, breaks=100)
+
+plot(x=0:8, y=dpois(0:8, lambda=lambda_hat_bisec), type="h", xlab='y', ylab="p.m.f.")
+```
+
+The histogram of the observed frequencies and the plot of the Poisson distribution are fairly similar. The reasons why they may differ is because the Poisson model is an approximation based on assumptions of the observed frequencies. The Poisson model may assume things in its distribution that does not reflect real-life observed data. Random variance also occurs in the observed frequencies, which can give more uncertainty in the estimate of lambda_hat. These reasons can lead to differences between the actual data (or frequencies) and the Poisson model. As the sample size of the observed data increases, it would eventually look exactly like the Poisson distribution.
+
+## Question 3
+In this exercise, I am using Newton's Method to find the maximum likelihood estimate in the Poisson model for the World Cup data. I am then verifying that the root found by Newton's Method is close to the sample mean.
+```{r}
+y <- c(6, 2, 1, 0, 3, 1, 4, 1, 4, 3, 2, 3, 0, 1, 4, 4, 1, 3, 2, 1, 6, 3, 0, 2, 2, 2, 0, 2, 2, 2, 4, 4, 3, 3, 4, 2, 2, 3, 0, 5, 2, 3, 5, 4, 1, 1, 2, 2, 2, 3, 1, 1, 1, 0, 3, 4, 2, 3, 0, 1, 2, 1, 4, 2, 2, 0, 2, 1, 2, 1, 1, 4, 2, 1, 2, 2, 0, 3, 1, 1, 3, 5, 3, 2, 1, 4, 0, 1, 2, 3, 2, 2, 4, 7, 1, 2, 1, 3, 4, 2, 1, 1, 1, 3, 5, 0, 4, 3, 0, 3, 3, 0, 3, 3, 5, 4, 3, 3, 0, 1, 3, 2, 4, 1, 5, 1, 5, 1, 4, 1, 6, 4, 3, 4, 3, 3, 3, 3, 3, 4, 0, 3, 3, 0, 2, 5, 2, 4, 3, 3, 0, 1, 7, 3, 1, 4, 1, 1, 6, 4, 3, 2, 5, 4, 1, 0, 5, 3, 5, 4, 3, 0, 1, 3, 1, 2, 2, 2, 2, 3, 3, 1, 8, 3, 1, 0, 0, 1, 3, 2, 1, 3, 2, 2, 3, 2, 2, 3, 1, 3, 1, 3, 1, 0, 8, 0, 3, 1)
+
+n <- length (y)
+lambda_hat <- mean(y)
+
+x <- 0.5
+itr <- 50
+
+g <- function(lambda, y){
+  sum <- 0
+  for(i in 1:n){
+    sum <- sum + dpois(y[i], lambda=lambda, log=TRUE)
+  }
+  return(sum)
+} 
+
+g.prime <- function(lambda, y){
+  derivative <- sum ((y / lambda)-1)
+  return(derivative)
+  }
+
+g.2prime <- function(lambda, y){
+  return ((-1 / lambda^2) * sum(y))
+}
+
+
+for (i in 1:itr){
+  x <- x - g.prime(x, y)/g.2prime(x, y)
+}
+
+x
+
+mean(y)
+
+x - mean (y)
+```
